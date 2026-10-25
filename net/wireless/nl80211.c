@@ -10572,8 +10572,12 @@ static int nl80211_get_reg_do(struct sk_buff *skb, struct genl_info *info)
 
 		regdom = get_wiphy_regdom(wiphy);
 
-		/* a self-managed-reg device must have a private regdom */
-		if (WARN_ON(!regdom && self_managed)) {
+		/*
+		 * A self-managed-reg device must have a private regdom, but
+		 * the driver may not have provided it yet right after the
+		 * wiphy was registered, so don't warn about it.
+		 */
+		if (!regdom && self_managed) {
 			err = -EINVAL;
 			goto nla_put_failure_rcu;
 		}
