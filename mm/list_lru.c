@@ -666,7 +666,12 @@ int __list_lru_init(struct list_lru *lru, bool memcg_aware, struct shrinker *shr
 	int i;
 
 #ifdef CONFIG_MEMCG
-	if (shrinker)
+	/*
+	 * shrinker_alloc() drops SHRINKER_MEMCG_AWARE (leaving shrinker->id
+	 * unassigned) when memcg or kmem accounting is disabled, so only use
+	 * the id of a shrinker that really is memcg aware.
+	 */
+	if (shrinker && (shrinker->flags & SHRINKER_MEMCG_AWARE))
 		lru->shrinker_id = shrinker->id;
 	else
 		lru->shrinker_id = -1;
