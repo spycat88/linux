@@ -1794,6 +1794,13 @@ static int disp_cc_sm8550_probe(struct platform_device *pdev)
 		disp_cc_mdss_mdp_clk_src.freq_tbl = ftbl_disp_cc_mdss_mdp_clk_src_sar2130p;
 	}
 
+	/*
+	 * The bootloader may leave the MDP RCG running from PLL0 to show a
+	 * splash screen. Park it while PLL0 is still running, otherwise it
+	 * gets stuck once PLL0 is reconfigured below.
+	 */
+	clk_rcg2_park_unregistered(&disp_cc_mdss_mdp_clk_src, regmap);
+
 	clk_lucid_ole_pll_configure(&disp_cc_pll0, regmap, &disp_cc_pll0_config);
 	clk_lucid_ole_pll_configure(&disp_cc_pll1, regmap, &disp_cc_pll1_config);
 

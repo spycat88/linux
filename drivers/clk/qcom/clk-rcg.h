@@ -214,4 +214,5 @@ struct clk_rcg_dfs_data {
 extern int qcom_cc_register_rcg_dfs(struct regmap *regmap,
 				    const struct clk_rcg_dfs_data *rcgs,
 				    size_t len);
+void clk_rcg2_park_unregistered(struct clk_rcg2 *rcg, struct regmap *regmap);
 #endif

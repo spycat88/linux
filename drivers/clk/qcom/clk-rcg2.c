@@ -1597,6 +1597,44 @@ const struct clk_ops clk_rcg2_shared_no_init_park_ops = {
 };
 EXPORT_SYMBOL_GPL(clk_rcg2_shared_no_init_park_ops);
 
+/**
+ * clk_rcg2_park_unregistered - park an RCG on its safe source before it is
+ * registered
+ * @rcg: the RCG to park
+ * @regmap: regmap of the clock controller
+ *
+ * The bootloader may leave an RCG running from a PLL that the clock
+ * controller driver reconfigures at probe, after which the RCG can no longer
+ * switch away from it. Call this before reconfiguring such a PLL, while it is
+ * still running, to move the RCG over to its always-on safe source.
+ */
+void clk_rcg2_park_unregistered(struct clk_rcg2 *rcg, struct regmap *regmap)
+{
+	u32 cmd, cfg;
+
+	regmap_read(regmap, rcg->cmd_rcgr + CFG_REG, &cfg);
+	if ((cfg & CFG_SRC_SEL_MASK) == rcg->safe_src_index << CFG_SRC_SEL_SHIFT)
+		return;
+
+	/* Force the RCG on so it switches even if its branches are off */
+	regmap_update_bits(regmap, rcg->cmd_rcgr + CMD_REG, CMD_ROOT_EN,
+			   CMD_ROOT_EN);
+	if (regmap_read_poll_timeout(regmap, rcg->cmd_rcgr + CMD_REG, cmd,
+				     !(cmd & CMD_ROOT_OFF), 1, 500))
+		pr_warn("%s: RCG did not turn on\n", rcg->clkr.hw.init->name);
+
+	regmap_write(regmap, rcg->cmd_rcgr + CFG_REG,
+		     rcg->safe_src_index << CFG_SRC_SEL_SHIFT);
+	regmap_update_bits(regmap, rcg->cmd_rcgr + CMD_REG, CMD_UPDATE,
+			   CMD_UPDATE);
+	if (regmap_read_poll_timeout(regmap, rcg->cmd_rcgr + CMD_REG, cmd,
+				     !(cmd & CMD_UPDATE), 1, 500))
+		pr_warn("%s: RCG failed to park\n", rcg->clkr.hw.init->name);
+
+	regmap_update_bits(regmap, rcg->cmd_rcgr + CMD_REG, CMD_ROOT_EN, 0);
+}
+EXPORT_SYMBOL_GPL(clk_rcg2_park_unregistered);
+
 /* Common APIs to be used for DFS based RCGR */
 static void clk_rcg2_dfs_populate_freq(struct clk_hw *hw, unsigned int l,
 				       struct freq_tbl *f)
