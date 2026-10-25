@@ -226,6 +226,13 @@ config BACKLIGHT_LOCOMO
 	  If you have a Sharp Zaurus SL-5500 (Collie) or SL-5600 (Poodle) say y to
 	  enable the LCD/backlight driver.
 
+config BACKLIGHT_ODIN2MINI
+	tristate "Backlight Driver for AYN Odin2 Mini"
+	depends on I2C
+	select REGMAP_I2C
+	help
+		Say Y to enable the backlight driver for the AYN Odin2 Mini.
+
 config BACKLIGHT_OMAP1
 	tristate "OMAP1 PWL-based LCD Backlight"
 	depends on ARCH_OMAP1 || COMPILE_TEST
@@ -467,6 +474,14 @@ config BACKLIGHT_SKY81452
 
 	  To compile this driver as a module, choose M here: the module will
 	  be called sky81452-backlight
+
+config BACKLIGHT_SY7758
+	tristate "Backlight Driver for Silergy SY7758"
+	depends on I2C
+	select REGMAP_I2C
+	help
+		Say Y to enable the backlight driver for the Silergy SY7758
+		backlight controller.
 
 config BACKLIGHT_TPS65217
 	tristate "TPS65217 Backlight"

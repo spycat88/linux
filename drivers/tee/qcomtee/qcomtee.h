@@ -17,6 +17,8 @@
 #define QCOMTEE_OBJREF_FLAG_USER	BIT(1)
 #define QCOMTEE_OBJREF_FLAG_MEM		BIT(2)
 
+struct qcomtee_compat_client;
+
 /**
  * struct qcomtee - Main service struct.
  * @teedev: client device.
@@ -27,6 +29,8 @@
  * @xa_local_objects: array of objects exported to QTEE.
  * @xa_last_id: next ID to allocate.
  * @qtee_version: QTEE version.
+ * @compat_uefisecapp: uefisecapp's QSEECOM client, when only the QSEECom
+ *                     compat app loader reaches it.
  */
 struct qcomtee {
 	struct tee_device *teedev;
@@ -37,7 +41,21 @@ struct qcomtee {
 	struct xarray xa_local_objects;
 	u32 xa_last_id;
 	u32 qtee_version;
+	struct qcomtee_compat_client *compat_uefisecapp;
 };
+
+/**
+ * struct qtee_service - A secure service exposed by QTEE identified by a 32-bit UID.
+ * @name: Name of the QTEE service.
+ * @uid: 32-bit UID used by QTEE to identify the service.
+ */
+struct qtee_service {
+	const char *name;
+	const u32 uid;
+};
+
+void qcomtee_compat_register(struct qcomtee *qcomtee, struct device *parent);
+void qcomtee_compat_unregister(struct qcomtee *qcomtee);
 
 void qcomtee_fetch_async_reqs(struct qcomtee_object_invoke_ctx *oic);
 struct qcomtee_object *qcomtee_idx_erase(struct qcomtee_object_invoke_ctx *oic,

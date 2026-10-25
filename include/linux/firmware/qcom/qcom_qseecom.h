@@ -19,10 +19,14 @@
  * struct qseecom_client - QSEECOM client device.
  * @aux_dev: Underlying auxiliary device.
  * @app_id: ID of the loaded application.
+ * @send: sends to the application when it isn't reached through the QSEECOM
+ *        SCM calls, or NULL.
  */
 struct qseecom_client {
 	struct auxiliary_device aux_dev;
 	u32 app_id;
+	int (*send)(struct qseecom_client *client, void *req, size_t req_size,
+		    void *rsp, size_t rsp_size);
 };
 
 /**
@@ -48,6 +52,9 @@ static inline int qcom_qseecom_app_send(struct qseecom_client *client,
 					void *req, size_t req_size,
 					void *rsp, size_t rsp_size)
 {
+	if (client->send)
+		return client->send(client, req, req_size, rsp, rsp_size);
+
 	return qcom_scm_qseecom_app_send(client->app_id, req, req_size, rsp, rsp_size);
 }
 

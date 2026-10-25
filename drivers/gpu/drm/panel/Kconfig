@@ -17,6 +17,26 @@ config DRM_PANEL_ABT_Y030XX067A
 	  Y030XX067A 320x480 3.0" panel as found in the YLM RG-280M, RG-300
 	  and RG-99 handheld gaming consoles.
 
+config DRM_PANEL_AR06_4INCH
+	tristate "Ayaneo Pocket ACE panel driver"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	select DRM_DISPLAY_HELPER
+	help
+	  Say Y here if you want to enable support for Ayaneo Pocket ACE
+	  1080x1620 60hz Panel.
+
+config DRM_PANEL_AR02_3INCH
+	tristate "Ayaneo Pocket DMG panel driver"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	select DRM_DISPLAY_HELPER
+	help
+	  Say Y here if you want to enable support for Ayaneo Pocket DMG
+	  1080x1240 60hz Panel.
+
 config DRM_PANEL_ARM_VERSATILE
 	tristate "ARM Versatile panel driver"
 	depends on OF
@@ -115,6 +135,38 @@ config DRM_PANEL_CHIPWEALTH_CH13726A
 	help
 	  Say Y here if you want to enable support for ChipWealth
 	  CH13726A-based display panels.
+
+config DRM_PANEL_BOE_XM91080G
+	tristate "Xm-Plus XM91080G-based panels"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	select DRM_KMS_HELPER
+	help
+	  Say Y if you want to enable support for panels based on the
+	  Xm-Plus XM91080G controller.
+
+config DRM_PANEL_CHIPONE_ICNA35XX
+	tristate "Chipone ICNA35XX panel driver"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	select DRM_DISPLAY_HELPER
+	help
+	  Say Y here if you want to enable support for the panels built
+	  around the Chipone ICNA3512 and ICNA3520 display controllers,
+	  such as some Tianma panels used in AYN Odin2 Portal and Thor.
+
+config DRM_PANEL_DDIC_CH13726A
+	tristate "DDIC CH13726A-based DSI panel"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	select DRM_DISPLAY_DP_HELPER
+	select DRM_DISPLAY_HELPER
+	help
+	  Say Y here if you want to enable support for DDIC CH13726A-based
+	  display panels.
 
 config DRM_PANEL_EBBG_FT8719
 	tristate "EBBG FT8719 panel driver"
@@ -272,6 +324,15 @@ config DRM_PANEL_ILITEK_IL9322
 	help
 	  Say Y here if you want to enable support for Ilitek IL9322
 	  QVGA (320x240) RGB, YUV and ITU-T BT.656 panels.
+
+config DRM_PANEL_ILITEK_IL97680A
+	tristate "Ilitek IL97680A-based panels"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y if you want to enable support for panels based on the
+	  Ilitek IL97680A controller.
 
 config DRM_PANEL_ILITEK_ILI9341
 	tristate "Ilitek ILI9341 240x320 QVGA panels"
@@ -1235,6 +1296,16 @@ config DRM_PANEL_SYNAPTICS_TDDI
 	  namesake, with varying resolutions and data lanes. They also have a
 	  built-in LED backlight and a touch controller.
 
+config DRM_PANEL_SYNAPTICS_TD4328
+	tristate "Synaptics TD4328-based panels"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	select DRM_KMS_HELPER
+	help
+	  Say Y if you want to enable support for panels based on the
+	  Synaptics TD4328 controller.
+
 config DRM_PANEL_TDO_TL070WSH30
 	tristate "TDO TL070WSH30 DSI panel"
 	depends on OF
@@ -1329,6 +1400,15 @@ config DRM_PANEL_VISIONOX_VTDR6130
 	  Say Y here if you want to enable support for Visionox
 	  VTDR6130 1080x2400 AMOLED DSI panel.
 
+config DRM_PANEL_VISIONOX_VTDR6130_COG
+	tristate "Visionox VTDR6130 COG"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y here if you want to enable support for Visionox
+	  VTDR6130 COG 1080x1920 AMOLED DSI panel.
+
 config DRM_PANEL_WIDECHIPS_WS2401
 	tristate "Widechips WS2401 DPI panel driver"
 	depends on SPI && GPIOLIB
@@ -1339,6 +1419,44 @@ config DRM_PANEL_WIDECHIPS_WS2401
 	  480x800 display controller used in panels such as Samsung LMS380KF01.
 	  This display is used in the Samsung Galaxy Ace 2 GT-I8160 (Codina).
 
+config DRM_PANEL_AYANEO_WT0600_2K
+	tristate "Ayaneo WT0600/WT0630 2K dual-DSI video mode panels"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y here if you want to enable support for Ayaneo WT0600 and WT0630
+	  1440x2560 60Hz dual-DSI video mode display panels. These panels are
+	  used in Ayaneo handheld gaming devices.
+
+	  To compile this driver as a module, choose M here.
+
+config DRM_PANEL_AYANEO_WT0600_1K
+	tristate "Ayaneo WT0600 1080p single-DSI video mode panel"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y here if you want to enable support for the Ayaneo WT0600
+	  1080x1920 60Hz single-DSI video mode display panel. This panel is
+	  used in the Ayaneo Pocket S 1K handheld gaming device.
+
+	  To compile this driver as a module, choose M here.
+
+config DRM_PANEL_AYANEO_AR16_4INCH
+	tristate "AYANEO AR16 4-inch video mode panel"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	select DRM_DISPLAY_HELPER
+	help
+	  Say Y here if you want to enable support for the 1280x960 60 Hz
+	  AR16 4-inch video mode panel used by the AYANEO Pocket S Mini.
+	  The driver controls the panel reset, supply rails and backlight, and
+	  sends the stock initialization sequence over a four-lane DSI link.
+
+	  To compile this driver as a module, choose M here.
+
 config DRM_PANEL_XINPENG_XPP055C272
 	tristate "Xinpeng XPP055C272 panel driver"
 	depends on OF
@@ -1348,4 +1466,5 @@ config DRM_PANEL_XINPENG_XPP055C272
 	  Say Y here if you want to enable support for the Xinpeng
 	  XPP055C272 controller for 720x1280 LCD panels with MIPI/RGB/SPI
 	  system interfaces.
+
 endmenu

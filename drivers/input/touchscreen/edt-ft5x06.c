@@ -146,6 +146,7 @@ struct edt_ft5x06_ts_data {
 	enum edt_ver version;
 	unsigned int crc_errors;
 	unsigned int header_errors;
+	bool no_regmap_bulk_read;
 };
 
 struct edt_i2c_chip_data {
@@ -295,6 +296,36 @@ static const struct regmap_config edt_M06_i2c_regmap_config = {
 	.write = edt_M06_i2c_write,
 };
 
+static int edt_bulk_read(struct regmap *map,
+				     unsigned int start,
+				     void *val, size_t len)
+{
+	u8 *dst = val;
+	size_t off = 0;
+
+	while (off < len) {
+		unsigned int v = 0;
+		int ret, tries;
+
+		for (tries = 0; tries < 3; tries++) {
+			ret = regmap_read(map, start + off, &v);
+			if (!ret) {
+				dst[off] = (u8)v;
+				break;
+			}
+			if (ret == -ETIMEDOUT || ret == -EAGAIN)
+				usleep_range(2000, 4000);
+		}
+
+		if (tries == 3)
+			return ret ? ret : -EIO;
+
+		off++;
+	}
+
+	return 0;
+}
+
 static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
 {
 	struct edt_ft5x06_ts_data *tsdata = dev_id;
@@ -304,8 +335,13 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
 	int error;
 
 	memset(rdbuf, 0, sizeof(rdbuf));
-	error = regmap_bulk_read(tsdata->regmap, tsdata->tdata_cmd, rdbuf,
-				 tsdata->tdata_len);
+	if(tsdata->no_regmap_bulk_read) {
+		error = edt_bulk_read(tsdata->regmap, tsdata->tdata_cmd, rdbuf,
+					tsdata->tdata_len);
+	} else {
+		error = regmap_bulk_read(tsdata->regmap, tsdata->tdata_cmd, rdbuf,
+					tsdata->tdata_len);
+	}
 	if (error) {
 		dev_err_ratelimited(dev, "Unable to fetch data, error: %d\n",
 				    error);
@@ -1119,6 +1155,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client)
 	const struct edt_i2c_chip_data *chip_data;
 	struct edt_ft5x06_ts_data *tsdata;
 	unsigned int val;
+	const char *label;
 	struct input_dev *input;
 	unsigned long irq_flags;
 	int error;
@@ -1212,6 +1249,8 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client)
 		return error;
 	}
 
+	tsdata->no_regmap_bulk_read =
+		device_property_read_bool(&client->dev, "no-regmap-bulk-read");
 	/*
 	 * Check which sleep modes we can support. Power-off requires the
 	 * reset-pin to ensure correct power-down/power-up behaviour. Start with
@@ -1289,6 +1328,10 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client)
 	dev_dbg(&client->dev,
 		"Model \"%s\", Rev. \"%s\", %dx%d sensors\n",
 		tsdata->name, tsdata->fw_version, tsdata->num_x, tsdata->num_y);
+
+	/* Allow device tree to override the input device name */
+	if (!device_property_read_string(&client->dev, "label", &label))
+		strscpy(tsdata->name, label, EDT_NAME_LEN);
 
 	input->name = tsdata->name;
 	input->id.bustype = BUS_I2C;

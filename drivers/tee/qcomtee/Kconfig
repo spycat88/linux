@@ -4,6 +4,7 @@ config QCOMTEE
 	tristate "Qualcomm TEE Support"
 	depends on ARCH_QCOM || COMPILE_TEST
 	depends on !CPU_BIG_ENDIAN
+	select AUXILIARY_BUS
 	select QCOM_SCM
 	select QCOM_TZMEM_MODE_SHMBRIDGE
 	help
